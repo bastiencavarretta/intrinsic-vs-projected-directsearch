@@ -6,7 +6,7 @@ This repository contains the code for the paper "Complexity guarantees and polli
 
     `pip install -r requirements.txt`.
 
-2. Run cell by cell the `directsearch_experiments.ipynb` file to obtain the data profiles and performance tables from section 6. The cell performing the direct-search ran for three hours in our case.
+2. Run cell by cell the `directsearch_experiments.ipynb` file to obtain the data profiles and performance tables from section 6. The cell performing the direct-search ran for three hours in our case, storing 1.5Gb of data.
 
 3. Run cell by cell the `cosine_measure.ipynb` file to obtain the plots from section 5.
 
