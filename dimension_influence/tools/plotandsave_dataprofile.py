@@ -5,7 +5,7 @@ import itertools
 import pickle
 import dill
 import matplotlib as mpl
-from tools.perform_directsearch import ds_key
+from influence_of_dimension.tools.perform_directsearch import ds_key
 import itertools
 
 

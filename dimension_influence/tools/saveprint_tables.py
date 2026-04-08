@@ -1,7 +1,9 @@
 import itertools
 import pickle
 import dill
-from tools.perform_directsearch import ds_key  # key to read the directsearch data.
+from influence_of_dimension.tools.perform_directsearch import (
+    ds_key,
+)  # key to read the directsearch data.
 import pandas as pd
 
 # formatting tables
