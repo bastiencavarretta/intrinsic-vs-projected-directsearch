@@ -1,48 +1,63 @@
+from multiprocessing import Value
+from operator import ne
+
 import pymanopt as mo
+import pymanopt.manifolds as man
+from pymanopt.manifolds.manifold import Manifold
 import numpy as np
 import numpy.linalg as lg
-import pymanopt.manifolds as man
 from dataclasses import dataclass
-from pymanopt.manifolds.manifold import Manifold
 import scipy.linalg
 import scipy.stats
 import scipy
-from influence_of_dimension.tools.utils_cm_hypersphere import *
-from tools.problems.newmanifolds import NullManifold
+import networkx as nx
 
 
 @dataclass
 class ProblemSynchRotations:
-    """Build a minimization problem on a sphere in R^n, with all required methods to run the directsearch.
-    Args:
-        adim (int) : ambient dimension
-        mdim (int) : manifold dimension. mdim>=2.
-    Note:
-        The manifold is a sphere of dimension mdim embedded in R^{mdim+1}, concatenated with a null manifold of dimension adim - (mdim+1).
-    """
+    """ """
 
-    adim: int
-    mdim: int = 
+    d: int
+    n: int = 2
+    p: float = 0.7  # erdos reyni probability
+    eps: float = 0.01  # noise
+    seed: int = 0
 
     def __post_init__(self):
+        np.random.seed(self.seed)
+        self.mdim = (self.d * (self.d - 1) // 2) * self.n
+        self.adim = self.n * (self.d**2)
         self.codim = self.adim - self.mdim
-        self.manifold = man.Product(
-            [
-                mo.manifolds.Sphere(self.mdim + 1),
-                NullManifold(man.Euclidean(self.codim - 1)),
-            ]
+        manif = man.Product(
+            [mo.manifolds.SpecialOrthogonalGroup(self.d) for _ in range(self.n)]
         )
-        self.anorm = lambda x: np.sqrt(
-            scipy.linalg.norm(x[0], ord=2) ** 2 + scipy.linalg.norm(x[1], ord=2) ** 2
-        )  # ambient norm = euclidean norm since embedded submanifold
-        A = np.random.randn(self.mdim + 1, self.mdim + 1)
-        self.A = (A + A.T) / 2
+
+        self.manifold = manif
+        self.xstar = self.manifold.random_point()
+        self.anorm = lambda v: np.linalg.norm(
+            np.array([np.linalg.norm(v[i], ord="fro") for i in range(self.n)]), ord=2
+        )
+        G = nx.erdos_renyi_graph(self.n, self.p)
+        self.G = list(G.edges())
+        self.H = [self.xstar[i].dot(self.xstar[j].T) for (i, j) in self.G]
+
         self.xstart = self.manifold.random_point()
         self.fstart = self.costf(self.xstart)
 
+    def stack(self, x):
+        """stacks point on the manifold to tensor types"""
+        return np.stack(x)  # one single tensor
+
+    def unstack(self, x):
+        return tuple(
+            x[i] for i in range(x.shape[0])
+        )  # convert points back to pymanopt product type
+
     def costf(self, x):
-        value = np.dot(self.A, x[0]).dot(x[0])
-        return value
+        sum = 0
+        for ind, (i, j) in enumerate(self.G):
+            sum = sum + np.linalg.matrix_norm(x[i] - self.H[ind].dot(x[j])) ** 2
+        return sum
 
     def build_pss(
         self,
@@ -66,50 +81,115 @@ class ProblemSynchRotations:
         Returns :
             pss (list) : list of vectors of the tangent space (compatible with the manifold type), forming a positive spanning set.
         """
-
-
+        xs = self.stack(x)
         if projection == 1:
-            abase_U = np.eye(self.mdim + 1)
-            abase_V = np.eye(self.codim - 1)
-            abase = []
-            for vec in abase_U:
-                abase.append(np.hstack((vec, np.zeros(self.codim - 1))))
-            for vec in abase_V:
-                abase.append(np.hstack((np.zeros(self.mdim + 1), vec)))
-            abase = np.array(abase).T  # each column is a vector
-
-            # applying rotation to basis
+            abase = np.eye(self.adim)
+            # application de la rotation avant de reshaper : vérifier que ça fait du sens !
+            rotmat = scipy.stats.ortho_group.rvs(self.adim)
             if rotation == 1:
-                rotmat = scipy.stats.ortho_group.rvs(self.adim)
-                base = abase.dot(rotmat)
-            else:
-                base = abase
+                abase = rotmat.dot(abase)
+            abase = abase.reshape(self.adim, self.n, self.d, self.d)
+            # les vecteurs de taille (self.n,self.d,self.d) sont du type du l'espace ambiant, à unstack près.
 
             # Defining the ambient pss
             if psstype == 1:
+                apss = np.concat((abase, -abase), axis=0)
             elif psstype == 2:
+                negatedsum = -np.sum(abase, axis=0)
+                negatedsumnorm = np.sqrt(np.sum(negatedsum**2))
+                negatedsum = negatedsum / negatedsumnorm
+                negatedsum = negatedsum.reshape(1, self.n, self.d, self.d)
+                apss = np.concatenate((abase, negatedsum), axis=0)
+
             elif psstype == 3:
+                GramMatrix = (-1 / self.adim) * np.ones((self.adim, self.adim)) + (
+                    1 + 1 / self.adim
+                ) * np.eye(self.adim)
 
-            # projecting the pss
-            pss = []
-            for vec in apss.T:
-                pymanoptvec = [vec[: self.mdim + 1], vec[self.mdim + 1 :]]
-                pvec = self.manifold.projection(x, pymanoptvec)
-                # removing zero vectors
-                pvecnorm = self.manifold.norm(x, pvec)
-                if pvecnorm > tolerance:  # removing zero vectors
-                    if renormalize == True:  # renormalizing nonzero vectors
-                        pvec = pvec / pvecnorm
-                    pss.append(pvec)
-            nblostvec = len(apss.T) - len(pss)
-            pymanoptpss = pss
+                L = scipy.linalg.cholesky(GramMatrix)
+                apss = np.einsum(
+                    "ijkl,im->mjkl", abase, L.T
+                )  # lines of L have uniform angles, so transpose it to use these lines as coefficients to combine the base with.
+                negatedsum = -np.sum(apss, axis=0)
+                negatedsum = negatedsum.reshape(1, self.n, self.d, self.d)
+                apss = np.concatenate((apss, negatedsum), axis=0)
+            else:
+                raise ValueError("psstype should be either 1, 2 or 3")
 
-            # remark : if no rotation was applied, then many vectors are aligned with the axes. After projection, they are removed. The projected method will thus have roughly as many vectors as the intrinsic one.
+            # projecting the pss (see Boumal, p162)
+
+            xTu = np.einsum("nik,bnkj->bnij", np.transpose(xs, axes=(0, 2, 1)), apss)
+            uTx = np.einsum("bnik,nkj->bnij", np.transpose(apss, axes=(0, 1, 3, 2)), xs)
+            antisymetrized = (xTu - uTx) / 2
+            pss = np.einsum("nik,bnkj->bnij", xs, antisymetrized)
+
+            # renormalizing the projected vectors (embedded subm)
+            pssnorms = np.sqrt(np.sum(pss**2, axis=(1, 2, 3)))
+            pssnormskeep = np.where(pssnorms >= tolerance)
+            pssnormsdiscard = np.where(pssnorms < tolerance)
+            nblostvec = len(pssnormsdiscard)
+
+            pss = pss[pssnormskeep]
+            pssnorms = pssnorms[pssnormskeep]
+            pss = pss / pssnorms[:, np.newaxis, np.newaxis, np.newaxis]
+            # psspymanopt =
 
         elif projection == 0:
+            # build base of tangent space
+            def antisymmetric_basis(n):
+                i, j = np.triu_indices(n, k=1)
+                k = len(i)
 
+                B = np.zeros((k, n, n))
+                B[np.arange(k), i, j] = 1
+                B[np.arange(k), j, i] = -1
 
-        if returnlostvecnumber == 1:
-            return pymanoptpss, nblostvec
+                return B / np.sqrt(2)
+
+            def product_antisymmetric_basis(d, n):
+                B = antisymmetric_basis(d)  # (d, n, n)
+                w = B.shape[0]
+
+                basis = np.zeros((n, w, n, d, d))
+                basis[np.arange(n), :, np.arange(n), :, :] = B
+                return basis.reshape(n * w, n, d, d)
+
+            base = product_antisymmetric_basis(self.d, self.n)
+
+            # application de la rotation (comb lin de la base)
+            rotmat = scipy.stats.ortho_group.rvs(self.mdim)
+            if rotation == 1:
+                base = np.einsum("kabc,kd->dabc", base, rotmat)
+
+            # multiplying by x at left to finally have an orthogonal basis of the tangent space
+            base = np.einsum("nik,bnkj->bnij", xs, base)
+
+            if psstype == 1:
+                pss = np.concat((base, -base), axis=0)
+            elif psstype == 2:
+                negatedsum = -np.sum(base, axis=0)
+                negatedsumnorm = np.sqrt(np.sum(negatedsum**2))
+                negatedsum = negatedsum / negatedsumnorm
+                negatedsum = negatedsum.reshape(1, self.n, self.d, self.d)
+                pss = np.concatenate((base, negatedsum), axis=0)
+            elif psstype == 3:
+                GramMatrix = (-1 / self.mdim) * np.ones((self.mdim, self.mdim)) + (
+                    1 + 1 / self.mdim
+                ) * np.eye(self.mdim)
+
+                L = scipy.linalg.cholesky(GramMatrix)
+                pss = np.einsum(
+                    "ijkl,im->mjkl", base, L.T
+                )  # lines of L have uniform angles, so transpose it to use these lines as coefficients to combine the base with.
+                negatedsum = -np.sum(pss, axis=0)
+                negatedsum = negatedsum.reshape(1, self.n, self.d, self.d)
+                pss = np.concatenate((pss, negatedsum), axis=0)
+            else:
+                raise ValueError("psstype should be either 1, 2 or 3")
         else:
-            return pymanoptpss
+            raise ValueError("projection should be either 0 or 1")
+        pssbis = []
+        for i in range(pss.shape[0]):
+            pssbis.append(self.unstack(pss[i]))
+        pss = pssbis
+        return pss

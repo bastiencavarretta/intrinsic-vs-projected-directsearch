@@ -174,17 +174,6 @@ def directsearch(
         # First dictionnary corresponds to the Riemannian simplex budget. It is a subsample of the second (Euclidean simplex budget).
         return [
             {
-                "vf": rbudget_fvalues,
-                "v_ev_per_it": rbudget_evaluation_per_its,
-                "vstep_sizes": rbudget_step_sizes,
-                "stopping_criterion": rbudget_stopping_criterion,
-                "last_iterate": rbudget_last_iterate,
-                "last_fvalue": rbudget_f_value,
-                "sucess_indices": rbudget_success_indices,
-                "failure_indices": rbudget_failure_indices,
-                "euclidean_simplex": 0,
-            },
-            {
                 "vf": fvalues,
                 "v_ev_per_it": evaluation_per_its,
                 "vstep_sizes": step_sizes,
@@ -194,6 +183,17 @@ def directsearch(
                 "sucess_indices": success_indices,
                 "failure_indices": failure_indices,
                 "euclideansimplex": 1,
+                "rsimplex_run": {
+                    "vf": rbudget_fvalues,
+                    "v_ev_per_it": rbudget_evaluation_per_its,
+                    "vstep_sizes": rbudget_step_sizes,
+                    "stopping_criterion": rbudget_stopping_criterion,
+                    "last_iterate": rbudget_last_iterate,
+                    "last_fvalue": rbudget_f_value,
+                    "sucess_indices": rbudget_success_indices,
+                    "failure_indices": rbudget_failure_indices,
+                    "euclidean_simplex": 0,
+                },
             },
         ]
 

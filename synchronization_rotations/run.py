@@ -1,0 +1,117 @@
+import argparse
+import json
+from os import path
+import pickle
+import time
+import os
+import sys
+from datetime import datetime
+from tracemalloc import start
+import pandas as pd
+
+from main import run_experiment
+from ProblemSynchRotations import ProblemSynchRotations
+from directsearch import directsearch
+
+
+class Tee:
+    def __init__(self, filename):
+        self.file = open(filename, "w")
+        self.stdout = sys.stdout
+
+    def write(self, message):
+        self.stdout.write(message)
+        self.file.write(message)
+        self.stdout.flush()
+        self.file.flush()
+
+    def flush(self):
+        self.stdout.flush()
+        self.file.flush()
+
+
+def setup_auto_log(axpdir, logsubdir="results"):
+    logdir = os.path.join(axpdir, logsubdir)
+    os.makedirs(logdir, exist_ok=True)
+    starttime = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
+    filename = f"run{starttime}.log"
+    logpath = os.path.join(logdir, filename)
+
+    sys.stdout = Tee(logpath)
+    sys.stderr = sys.stdout
+
+    return logdir, logpath, starttime
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Run experiment")
+    parser.add_argument(
+        "--exppath", type=str, required=True, help="Path to experience directory"
+    )
+
+    args = parser.parse_args()
+    with open(os.path.join(args.exppath, "config.json"), "r") as f:
+        config = json.load(f)
+    logdir, logpath, starttime = setup_auto_log(args.exppath)
+
+    config["logpath"] = logpath
+    config["starttime"] = starttime
+    configcopyname = f"run{starttime}.json"
+
+    configcopypath = os.path.join(logdir, configcopyname)
+    with open(configcopypath, "w") as f:
+        json.dump(config, f, indent=2)
+
+    print("Running experiment:", config["experiments"])
+
+    pb_parameters = config["pb_parameters"]
+    ds_parameters = config["algo_parameters"]
+    # device = config["device"]
+    # sanitytest = config["sanitytest"]
+    results = []
+
+    for pb_parameter in pb_parameters:
+        problem = ProblemSynchRotations(
+            pb_parameter["d"],
+            n=pb_parameter["n"],
+            p=pb_parameter["p"],
+            seed=pb_parameter["seed"],
+        )  # or problem = ProblemSynchRotations(**parameter)
+        for algo_parameter in ds_parameters:
+            parameter = {**pb_parameter, **algo_parameter}
+            start_time = time.time()
+            print("Running with parameters:", parameter)
+
+            result = directsearch(
+                problem,
+                budget=algo_parameter["vbudget"],
+                projection=algo_parameter["vproj"],
+                psstype=algo_parameter["vpsstype"],
+                rotation=algo_parameter["vrot"],
+                returnforeuclsimplex=algo_parameter["veuclsimpl"],
+            )
+
+            end_time = time.time()
+            result = {**parameter, **result}
+            result["duration"] = end_time - start_time
+            results.append({**parameter, "result": result})
+
+    df = pd.DataFrame(results)
+    results_path = os.path.join(logdir, f"results_{starttime}.pkl")
+    df.to_pickle(results_path)
+    print("Results saved to:", results_path)
+
+    print(
+        "Experiment completed\n",
+        "Start:",
+        starttime,
+        "\n",
+        "End:",
+        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+        "\n",
+        # "Result below: \n ",
+    )
+
+
+if __name__ == "__main__":
+    main()
