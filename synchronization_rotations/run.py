@@ -9,7 +9,6 @@ from datetime import datetime
 from tracemalloc import start
 import pandas as pd
 
-from main import run_experiment
 from ProblemSynchRotations import ProblemSynchRotations
 from directsearch import directsearch
 
@@ -62,8 +61,6 @@ def main():
     with open(configcopypath, "w") as f:
         json.dump(config, f, indent=2)
 
-    print("Running experiment:", config["experiments"])
-
     pb_parameters = config["pb_parameters"]
     ds_parameters = config["algo_parameters"]
     # device = config["device"]
@@ -71,11 +68,12 @@ def main():
     results = []
 
     for pb_parameter in pb_parameters:
+        print("Running experiment:", pb_parameter)
+
         problem = ProblemSynchRotations(
-            pb_parameter["d"],
-            n=pb_parameter["n"],
-            p=pb_parameter["p"],
-            seed=pb_parameter["seed"],
+            pb_parameter["vd"],
+            n=pb_parameter["vn"],
+            seed=pb_parameter["vseed"],
         )  # or problem = ProblemSynchRotations(**parameter)
         for algo_parameter in ds_parameters:
             parameter = {**pb_parameter, **algo_parameter}
@@ -84,7 +82,7 @@ def main():
 
             result = directsearch(
                 problem,
-                budget=algo_parameter["vbudget"],
+                budget=algo_parameter["vbudg"],
                 projection=algo_parameter["vproj"],
                 psstype=algo_parameter["vpsstype"],
                 rotation=algo_parameter["vrot"],

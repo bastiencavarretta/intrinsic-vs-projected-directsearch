@@ -20,7 +20,7 @@ class ProblemSynchRotations:
     d: int
     n: int = 2
     p: float = 0.7  # erdos reyni probability
-    eps: float = 0.01  # noise
+    eps: float = 1e-6  # noise
     seed: int = 0
 
     def __post_init__(self):
@@ -40,6 +40,10 @@ class ProblemSynchRotations:
         G = nx.erdos_renyi_graph(self.n, self.p)
         self.G = list(G.edges())
         self.H = [self.xstar[i].dot(self.xstar[j].T) for (i, j) in self.G]
+        self.H = [
+            self.H[i] + self.eps * np.random.randn(*self.H[0].shape)
+            for i in range(len(self.H))
+        ]  # adding noise
 
         self.xstart = self.manifold.random_point()
         self.fstart = self.costf(self.xstart)

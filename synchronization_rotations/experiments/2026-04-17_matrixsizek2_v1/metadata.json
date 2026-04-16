@@ -1,0 +1,53 @@
+{
+  "experiment_name": "matrixsizek2",
+  "date": "2026-04-17",
+  "description": "This is a first test to check if the pipeline works.",
+  "pb_parameters": {
+    "vseed": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "vn": [
+      2
+    ],
+    "vd": [
+      3,
+      5,
+      10,
+      20
+    ]
+  },
+  "algo_parameters": {
+    "vpsstype": [
+      1,
+      2,
+      3
+    ],
+    "vproj": [
+      0,
+      1
+    ],
+    "vrot": [
+      0,
+      1
+    ],
+    "vbudg": [
+      100
+    ],
+    "veuclsimpl": [
+      0
+    ]
+  },
+  "tags": [
+    "matrixsizek2"
+  ],
+  "version": "v1"
+}
