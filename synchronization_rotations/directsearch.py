@@ -99,6 +99,17 @@ def directsearch(
                 alpha = min(alpha_max, Gamma * alpha)
                 success = True
                 success_indices.append(k)
+
+            if (
+                budget != np.inf
+                and (evaluation_number + 1) % (int(0.1 * budget + 1)) == 1
+                and printing
+            ):  # printer 100 sorties en tout
+
+                print(
+                    f"it:{k:}, total evals: {evaluation_number:}/{budget:}, loss {vf[-1]:.3e}, alpha_ds: {valphas[-1]:.3e}, prop. polled: {vevperit[-1]:}/{len_polls:}"
+                )
+
             i = i + 1
 
         if success == False:
@@ -108,16 +119,6 @@ def directsearch(
 
         vf.append(f_value)
         valphas.append(alpha)
-
-        if (
-            budget != np.inf
-            and (evaluation_number + 1) % (int(0.1 * budget + 1)) == 1
-            and printing
-        ):  # printer 100 sorties en tout
-
-            print(
-                f"it:{k:}, total evals: {evaluation_number:}/{budget:}, loss_per: {vf[-1]:.3e}, alpha_ds: {valphas[-1]:.3e}, total polls: {vevperit[-1]:}/{len_polls:}"
-            )
 
         # Copying the directsearch data untill the rbudget if out.
         if euclsimplex == 1:
