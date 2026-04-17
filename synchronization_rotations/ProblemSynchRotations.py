@@ -19,7 +19,7 @@ class ProblemSynchRotations:
 
     d: int
     n: int = 2
-    p: float = 0.7  # erdos reyni probability
+    p: float = 1.0  # erdos reyni probability
     eps: float = 1e-6  # noise
     seed: int = 0
 
