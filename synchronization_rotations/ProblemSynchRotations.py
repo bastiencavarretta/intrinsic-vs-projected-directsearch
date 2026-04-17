@@ -20,8 +20,9 @@ class ProblemSynchRotations:
     d: int
     n: int = 2
     p: float = 1.0  # erdos reyni probability
-    eps: float = 1e-6  # noise
+    eps: float = 0.0  # noise
     seed: int = 0
+    warmstart: float = 1.0  # role of a step
 
     def __post_init__(self):
         np.random.seed(self.seed)
@@ -45,7 +46,12 @@ class ProblemSynchRotations:
             for i in range(len(self.H))
         ]  # adding noise
 
-        self.xstart = self.manifold.random_point()
+        if self.warmstart != 0:
+            random_tg = self.manifold.random_tangent_vector(self.xstar)
+
+            self.xstart = self.manifold.exp(self.xstar, self.warmstart * random_tg)
+        else:
+            self.xstart = self.manifold.random_point()
         self.fstart = self.costf(self.xstart)
 
     def stack(self, x):
