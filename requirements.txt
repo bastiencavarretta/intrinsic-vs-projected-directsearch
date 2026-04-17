@@ -14,3 +14,4 @@ plotly==5.24.1
 nbformat>=4.2
 kaleido==0.2.1
 black #for code formatting only, not required
+networkx
