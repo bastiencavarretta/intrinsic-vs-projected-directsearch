@@ -92,6 +92,7 @@ def main():
             end_time = time.time()
             result = {**parameter, **result}
             result["duration"] = end_time - start_time
+            result["problem"] = problem
             results.append({**parameter, "result": result})
 
     df = pd.DataFrame(results)
