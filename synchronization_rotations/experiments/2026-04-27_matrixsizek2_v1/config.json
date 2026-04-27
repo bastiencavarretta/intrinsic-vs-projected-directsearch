@@ -1,0 +1,114 @@
+{
+  "pb_parameters": [
+    {
+      "vseed": 0,
+      "vn": 2,
+      "vd": 3,
+      "id": 0
+    },
+    {
+      "vseed": 1,
+      "vn": 2,
+      "vd": 3,
+      "id": 1
+    }
+  ],
+  "algo_parameters": [
+    {
+      "psstype": 1,
+      "projection": 0,
+      "rotation": 0,
+      "simplexbudget": 5,
+      "euclsimplex": 0,
+      "id": 0
+    },
+    {
+      "psstype": 1,
+      "projection": 0,
+      "rotation": 1,
+      "simplexbudget": 5,
+      "euclsimplex": 0,
+      "id": 1
+    },
+    {
+      "psstype": 1,
+      "projection": 1,
+      "rotation": 0,
+      "simplexbudget": 5,
+      "euclsimplex": 0,
+      "id": 2
+    },
+    {
+      "psstype": 1,
+      "projection": 1,
+      "rotation": 1,
+      "simplexbudget": 5,
+      "euclsimplex": 0,
+      "id": 3
+    },
+    {
+      "psstype": 2,
+      "projection": 0,
+      "rotation": 0,
+      "simplexbudget": 5,
+      "euclsimplex": 0,
+      "id": 4
+    },
+    {
+      "psstype": 2,
+      "projection": 0,
+      "rotation": 1,
+      "simplexbudget": 5,
+      "euclsimplex": 0,
+      "id": 5
+    },
+    {
+      "psstype": 2,
+      "projection": 1,
+      "rotation": 0,
+      "simplexbudget": 5,
+      "euclsimplex": 0,
+      "id": 6
+    },
+    {
+      "psstype": 2,
+      "projection": 1,
+      "rotation": 1,
+      "simplexbudget": 5,
+      "euclsimplex": 0,
+      "id": 7
+    },
+    {
+      "psstype": 3,
+      "projection": 0,
+      "rotation": 0,
+      "simplexbudget": 5,
+      "euclsimplex": 0,
+      "id": 8
+    },
+    {
+      "psstype": 3,
+      "projection": 0,
+      "rotation": 1,
+      "simplexbudget": 5,
+      "euclsimplex": 0,
+      "id": 9
+    },
+    {
+      "psstype": 3,
+      "projection": 1,
+      "rotation": 0,
+      "simplexbudget": 5,
+      "euclsimplex": 0,
+      "id": 10
+    },
+    {
+      "psstype": 3,
+      "projection": 1,
+      "rotation": 1,
+      "simplexbudget": 5,
+      "euclsimplex": 0,
+      "id": 11
+    }
+  ]
+}

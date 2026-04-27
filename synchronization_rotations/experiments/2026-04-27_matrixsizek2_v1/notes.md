@@ -1,4 +1,4 @@
-# 2026-04-17_matrixsizek2_v1
+# 2026-04-27_matrixsizek2_v1
 
 ## Description
 This is a first test to check if the pipeline works.
@@ -7,43 +7,32 @@ This is a first test to check if the pipeline works.
 {
   "vseed": [
     0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9
+    1
   ],
   "vn": [
     2
   ],
   "vd": [
-    3,
-    5,
-    10,
-    20
+    3
   ]
 } {
-  "vpsstype": [
+  "psstype": [
     1,
     2,
     3
   ],
-  "vproj": [
+  "projection": [
     0,
     1
   ],
-  "vrot": [
+  "rotation": [
     0,
     1
   ],
-  "vbudg": [
-    100
+  "simplexbudget": [
+    5
   ],
-  "veuclsimpl": [
+  "euclsimplex": [
     0
   ]
 }

@@ -62,7 +62,7 @@ def main():
         json.dump(config, f, indent=2)
 
     pb_parameters = config["pb_parameters"]
-    ds_parameters = config["algo_parameters"]
+    algo_parameters = config["algo_parameters"]
     # device = config["device"]
     # sanitytest = config["sanitytest"]
     results = []
@@ -75,19 +75,14 @@ def main():
             n=pb_parameter["vn"],
             seed=pb_parameter["vseed"],
         )  # or problem = ProblemSynchRotations(**parameter)
-        for algo_parameter in ds_parameters:
+        for algo_parameter in algo_parameters:
             parameter = {**pb_parameter, **algo_parameter}
             start_time = time.time()
             print("Running with parameters:", parameter)
-
-            result = directsearch(
-                problem,
-                budget=algo_parameter["vbudg"],
-                projection=algo_parameter["vproj"],
-                psstype=algo_parameter["vpsstype"],
-                rotation=algo_parameter["vrot"],
-                returnforeuclsimplex=algo_parameter["veuclsimpl"],
-            )
+            algo_parameter = {
+                k: v for k, v in algo_parameter.items() if k != "id"
+            }  # withdraw the identification key of algo_parameter
+            result = directsearch(problem, **algo_parameter)
 
             end_time = time.time()
             result = {**parameter, **result}
@@ -97,7 +92,7 @@ def main():
 
     df = pd.DataFrame(results)
     results_path = os.path.join(logdir, f"results_{starttime}.pkl")
-    df.to_pickle(results_path)
+    df.to_pickle(results_path)s
     print("Results saved to:", results_path)
 
     print(

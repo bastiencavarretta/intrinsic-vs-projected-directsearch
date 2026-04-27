@@ -35,9 +35,6 @@ class ProblemSynchRotations:
 
         self.manifold = manif
         self.xstar = self.manifold.random_point()
-        self.anorm = lambda v: np.linalg.norm(
-            np.array([np.linalg.norm(v[i], ord="fro") for i in range(self.n)]), ord=2
-        )
         G = nx.erdos_renyi_graph(self.n, self.p)
         self.G = list(G.edges())
         self.H = [self.xstar[i].dot(self.xstar[j].T) for (i, j) in self.G]
@@ -53,6 +50,11 @@ class ProblemSynchRotations:
         else:
             self.xstart = self.manifold.random_point()
         self.fstart = self.costf(self.xstart)
+
+    def anorm(self, v):
+        return np.linalg.norm(
+            np.array([np.linalg.norm(v[i], ord="fro") for i in range(self.n)]), ord=2
+        )
 
     def stack(self, x):
         """stacks point on the manifold to tensor types"""
