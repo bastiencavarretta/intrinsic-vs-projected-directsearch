@@ -8,12 +8,14 @@ import subprocess
 import numpy as np
 
 # ====== USER INPUT ======
-experiment_name = "matrixsizek2"
-description = "This is a first test to check if the pipeline works."
+experiment_name = "k5_n3_budget200"
+description = "In this fourth experiment, the matrix sizes is 5 and we take 3 of them, and 100 instances of the problem are considered. No warmstart. We take a budget of 200 simplex gradients. We run with and without warmstart. We need to extract the required subtable to perform the data profiles"
 pb_parameters = {
-    "vseed": np.arange(0, 2, 1).tolist(),
-    "vn": [2],
-    "vd": [3],  # [3, 5, 10, 20],
+    "seed": np.arange(0, 1, 1).tolist(),
+    "n": [3],
+    "d": [5],  # [3, 5, 10],
+    "noise": [1e-6],  # ordre de grandeur de la distorsion : noise * d
+    "warmstart": [0, 0.2],
 }
 
 
@@ -21,8 +23,13 @@ algo_parameters = {
     "psstype": [1, 2, 3],
     "projection": [0, 1],
     "rotation": [0, 1],
-    "simplexbudget": [5],  # number of simplex gradients
-    "euclsimplex": [0],  # 0 means riemannian simplex, 1 euclidean.
+    "simplexbudget": [200],  # number of simplex gradients
+    "euclsimplex": [1],  # 0 means riemannian simplex, 1 euclidean.
+    "gamma": [0.5],
+    "Gamma": [2.0],
+    "alpha_0": [1.0],
+    "alpha_max": [1.0],
+    "c": [1.0],
 }
 
 
@@ -63,13 +70,13 @@ algo_values = algo_parameters.values()
 vpb_parameters = []
 for idx, combo in enumerate(itertools.product(*pb_values)):
     instance = dict(zip(pb_keys, combo))
-    instance["id"] = idx
+    instance["idpb"] = idx
     vpb_parameters.append(instance)
 
 valgo_parameters = []
 for idx, combo in enumerate(itertools.product(*algo_values)):
     instance = dict(zip(algo_keys, combo))
-    instance["id"] = idx
+    instance["idalgo"] = idx
     valgo_parameters.append(instance)
 
 config = {"pb_parameters": vpb_parameters, "algo_parameters": valgo_parameters}

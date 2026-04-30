@@ -18,11 +18,11 @@ class ProblemSynchRotations:
     """ """
 
     d: int
-    n: int = 2
-    p: float = 1.0  # erdos reyni probability
-    eps: float = 0.0  # noise
+    n: int
+    noise: float
     seed: int = 0
-    warmstart: float = 1.0  # role of a step
+    warmstart: float = 0.0  # role of a step
+    p: float = 1.0  # erdos reyni probability
 
     def __post_init__(self):
         np.random.seed(self.seed)
@@ -39,7 +39,10 @@ class ProblemSynchRotations:
         self.G = list(G.edges())
         self.H = [self.xstar[i].dot(self.xstar[j].T) for (i, j) in self.G]
         self.H = [
-            self.H[i] + self.eps * np.random.randn(*self.H[0].shape)
+            self.H[i]
+            + self.noise
+            * np.random.randn(*self.H[0].shape)
+            / np.sqrt(self.d)  # scaling makes sense if n = 2, else not sure
             for i in range(len(self.H))
         ]  # adding noise
 

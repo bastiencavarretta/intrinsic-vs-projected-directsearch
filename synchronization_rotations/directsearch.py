@@ -12,18 +12,18 @@ import dill
 
 def directsearch(
     problem,
-    simplexbudget=100,
-    projection=1,
-    psstype=1,
-    rotation=1,
-    euclsimplex=0,
+    simplexbudget,
+    projection,
+    psstype,
+    rotation,
+    euclsimplex,
+    gamma,
+    Gamma,
+    alpha_0,
+    alpha_max,
+    c,
+    tol=0.0,
     renormalize_tangent_vec=True,
-    gamma=0.5,
-    Gamma=2,
-    alpha_0=1.0,
-    alpha_max=1.0,
-    c=1.0,
-    eps=0.0,
     itmax=np.inf,
     printing=False,
 ):  # -> dict[str, Any] | list[dict[str, Any]] | None:
@@ -62,8 +62,17 @@ def directsearch(
     k = 1
     evaluation_number = 1
     stopcriterion = None
+
+    rb_vf, rb_vevperit, rb_valphas, rb_x, rb_stopcriterion = (
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+
     while (
-        k < itmax and alpha > eps and evaluation_number < budget
+        k < itmax and alpha > tol and evaluation_number < budget
     ):  # try and batch the evaluation later
         print("----entering main loop----") if printing and k == 1 else None
 
@@ -129,15 +138,11 @@ def directsearch(
                 rb_vevperit = vevperit.copy()
                 rb_valphas = valphas.copy()
                 rb_x = x.copy()
-                # rb_f_value = f_value.copy()
-                # rb_success_indices = success_indices.copy()
-                # rb_failure_indices = failure_indices.copy()
-
         k = k + 1
 
     if k >= itmax:
         stopcriterion = "full iterations used"
-    elif alpha <= eps:
+    elif alpha <= tol:
         stopcriterion = "low step size"
     elif evaluation_number >= budget:
         stopcriterion = "full budget used"
@@ -153,37 +158,22 @@ def directsearch(
     vf = np.array(vf)
 
     #    index of success/failures peut se retrouver grace au tableau des valphas
-    if (
-        euclsimplex == 0
-    ):  # means I only performed computations in a riemannian simplex setting (lest costly). BUT budget is still absolute, so this function applies to non simplex budget anyway !!!!!
-        return {
-            "euclideansimplex": 0,
-            "vf": vf,
-            "per_iteration_evaluations": vevperit,
-            "valpha": valphas,
-            "stopcriterion": stopcriterion,
-            "last_iterate": x,
-        }
-    if (
-        euclsimplex == 1
-    ):  # computations were run for euclidean simplex budget (scaled by adim+1). We return
+    result = {
+        "euclideansimplex": euclsimplex,
+        "vf": np.array(vf),
+        "per_iteration_evaluations": vevperit,
+        "valpha": valphas,
+        "stopcriterion": stopcriterion,
+        "last_iterate": x,
+    }
 
-        # First dictionnary corresponds to the Riemannian simplex budget. It is a subsample of the second (Euclidean simplex budget).
-        return [
-            {
-                "euclideansimplex": 0,
-                "vf": rb_vf,
-                "per_iteration_evaluations": rb_vevperit,
-                "valpha": rb_valphas,
-                "stopcriterion": rb_stopcriterion,
-                "last_iterate": rb_x,
-            },
-            {
-                "euclideansimplex": 1,
-                "vf": vf,
-                "per_iteration_evaluations": vevperit,
-                "valpha": valphas,
-                "stopcriterion": stopcriterion,
-                "last_iterate": x,
-            },
-        ]
+    if euclsimplex == 1:
+        result |= {
+            "rb_vf": rb_vf,
+            "rb_per_iteration_evaluations": rb_vevperit,
+            "rb_valpha": rb_valphas,
+            "rb_stopcriterion": rb_stopcriterion,
+            "rb_last_iterate": rb_x,
+        }
+
+    return result

@@ -68,31 +68,32 @@ def main():
     results = []
 
     for pb_parameter in pb_parameters:
-        print("Running experiment:", pb_parameter)
+        print("=====================================")
+        print("Setting problem:", pb_parameter)
+        print("=====================================")
+        pb_parameter_noid = {
+            k: v for k, v in pb_parameter.items() if k != "idpb"
+        }  # withdraw the identification key of algo_parameter
+        problem = ProblemSynchRotations(**pb_parameter_noid)
 
-        problem = ProblemSynchRotations(
-            pb_parameter["vd"],
-            n=pb_parameter["vn"],
-            seed=pb_parameter["vseed"],
-        )  # or problem = ProblemSynchRotations(**parameter)
         for algo_parameter in algo_parameters:
             parameter = {**pb_parameter, **algo_parameter}
             start_time = time.time()
-            print("Running with parameters:", parameter)
-            algo_parameter = {
-                k: v for k, v in algo_parameter.items() if k != "id"
+            print("Running algo with parameters:", parameter)
+            algo_parameter_noid = {
+                k: v for k, v in algo_parameter.items() if k != "idalgo"
             }  # withdraw the identification key of algo_parameter
-            result = directsearch(problem, **algo_parameter)
+            result = directsearch(problem, **algo_parameter_noid)
 
             end_time = time.time()
             result = {**parameter, **result}
             result["duration"] = end_time - start_time
             result["problem"] = problem
-            results.append({**parameter, "result": result})
+            results.append(result)
 
     df = pd.DataFrame(results)
     results_path = os.path.join(logdir, f"results_{starttime}.pkl")
-    df.to_pickle(results_path)s
+    df.to_pickle(results_path)
     print("Results saved to:", results_path)
 
     print(
@@ -101,7 +102,7 @@ def main():
         starttime,
         "\n",
         "End:",
-        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+        time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()),
         "\n",
         # "Result below: \n ",
     )
