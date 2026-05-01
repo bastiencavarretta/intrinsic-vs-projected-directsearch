@@ -1,0 +1,178 @@
+{
+  "pb_parameters": [
+    {
+      "seed": 0,
+      "n": 3,
+      "d": 5,
+      "noise": 1e-06,
+      "warmstart": 0,
+      "idpb": 0
+    },
+    {
+      "seed": 0,
+      "n": 3,
+      "d": 5,
+      "noise": 1e-06,
+      "warmstart": 0.2,
+      "idpb": 1
+    }
+  ],
+  "algo_parameters": [
+    {
+      "psstype": 1,
+      "projection": 0,
+      "rotation": 0,
+      "simplexbudget": 200,
+      "euclsimplex": 1,
+      "gamma": 0.5,
+      "Gamma": 2.0,
+      "alpha_0": 1.0,
+      "alpha_max": 1.0,
+      "c": 1.0,
+      "idalgo": 0
+    },
+    {
+      "psstype": 1,
+      "projection": 0,
+      "rotation": 1,
+      "simplexbudget": 200,
+      "euclsimplex": 1,
+      "gamma": 0.5,
+      "Gamma": 2.0,
+      "alpha_0": 1.0,
+      "alpha_max": 1.0,
+      "c": 1.0,
+      "idalgo": 1
+    },
+    {
+      "psstype": 1,
+      "projection": 1,
+      "rotation": 0,
+      "simplexbudget": 200,
+      "euclsimplex": 1,
+      "gamma": 0.5,
+      "Gamma": 2.0,
+      "alpha_0": 1.0,
+      "alpha_max": 1.0,
+      "c": 1.0,
+      "idalgo": 2
+    },
+    {
+      "psstype": 1,
+      "projection": 1,
+      "rotation": 1,
+      "simplexbudget": 200,
+      "euclsimplex": 1,
+      "gamma": 0.5,
+      "Gamma": 2.0,
+      "alpha_0": 1.0,
+      "alpha_max": 1.0,
+      "c": 1.0,
+      "idalgo": 3
+    },
+    {
+      "psstype": 2,
+      "projection": 0,
+      "rotation": 0,
+      "simplexbudget": 200,
+      "euclsimplex": 1,
+      "gamma": 0.5,
+      "Gamma": 2.0,
+      "alpha_0": 1.0,
+      "alpha_max": 1.0,
+      "c": 1.0,
+      "idalgo": 4
+    },
+    {
+      "psstype": 2,
+      "projection": 0,
+      "rotation": 1,
+      "simplexbudget": 200,
+      "euclsimplex": 1,
+      "gamma": 0.5,
+      "Gamma": 2.0,
+      "alpha_0": 1.0,
+      "alpha_max": 1.0,
+      "c": 1.0,
+      "idalgo": 5
+    },
+    {
+      "psstype": 2,
+      "projection": 1,
+      "rotation": 0,
+      "simplexbudget": 200,
+      "euclsimplex": 1,
+      "gamma": 0.5,
+      "Gamma": 2.0,
+      "alpha_0": 1.0,
+      "alpha_max": 1.0,
+      "c": 1.0,
+      "idalgo": 6
+    },
+    {
+      "psstype": 2,
+      "projection": 1,
+      "rotation": 1,
+      "simplexbudget": 200,
+      "euclsimplex": 1,
+      "gamma": 0.5,
+      "Gamma": 2.0,
+      "alpha_0": 1.0,
+      "alpha_max": 1.0,
+      "c": 1.0,
+      "idalgo": 7
+    },
+    {
+      "psstype": 3,
+      "projection": 0,
+      "rotation": 0,
+      "simplexbudget": 200,
+      "euclsimplex": 1,
+      "gamma": 0.5,
+      "Gamma": 2.0,
+      "alpha_0": 1.0,
+      "alpha_max": 1.0,
+      "c": 1.0,
+      "idalgo": 8
+    },
+    {
+      "psstype": 3,
+      "projection": 0,
+      "rotation": 1,
+      "simplexbudget": 200,
+      "euclsimplex": 1,
+      "gamma": 0.5,
+      "Gamma": 2.0,
+      "alpha_0": 1.0,
+      "alpha_max": 1.0,
+      "c": 1.0,
+      "idalgo": 9
+    },
+    {
+      "psstype": 3,
+      "projection": 1,
+      "rotation": 0,
+      "simplexbudget": 200,
+      "euclsimplex": 1,
+      "gamma": 0.5,
+      "Gamma": 2.0,
+      "alpha_0": 1.0,
+      "alpha_max": 1.0,
+      "c": 1.0,
+      "idalgo": 10
+    },
+    {
+      "psstype": 3,
+      "projection": 1,
+      "rotation": 1,
+      "simplexbudget": 200,
+      "euclsimplex": 1,
+      "gamma": 0.5,
+      "Gamma": 2.0,
+      "alpha_0": 1.0,
+      "alpha_max": 1.0,
+      "c": 1.0,
+      "idalgo": 11
+    }
+  ]
+}
