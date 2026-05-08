@@ -7,8 +7,8 @@ from pymanopt.manifolds.manifold import Manifold
 import scipy.linalg
 import scipy.stats
 import scipy
-from influence_of_dimension.tools.utils_cm_hypersphere import *
-from tools.problems.newmanifolds import NullManifold
+from dimension_influence.tools.utils_cm_hypersphere import *
+from dimension_influence.problems.newmanifolds import NullManifold
 
 
 @dataclass

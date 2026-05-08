@@ -5,7 +5,7 @@ import itertools
 import pickle
 import dill
 import matplotlib as mpl
-from influence_of_dimension.tools.perform_directsearch import ds_key
+from tools.perform_directsearch import ds_key
 import itertools
 
 
@@ -237,6 +237,8 @@ def plotting_dp(
 
         with open(pathproblems, "rb") as f:
             loadedproblems = dill.load(f)
+
+        print("hey")
         problems = loadedproblems
         vdsresults.append(dsresults)
         vproblems.append(problems)

@@ -1,7 +1,7 @@
-# 2026-04-29_2rotations_k5_warmstart_smallbudget_v1
+# 2026-05-03_k5_n2_budg100_noise1em6_warmstart_v1
 
 ## Description
-In this third experiment, the matix sizes is 5, and 100 instances of the problem are considered, budget is simply 50. We also keep the warmstart, to mitigate the effect of local minima. We restrict to such a small value of the budget to study the impact it can have on dataprofiles. So far, the dataprofiles display strange values for the projected PSS (solve immediatly 50 percents of problems) 
+Budget = 100 simplex gradients, noise = 1e-6, warmstart = 0.2, n=2, k=5.
 
 ## Parameters
 {
@@ -134,7 +134,7 @@ In this third experiment, the matix sizes is 5, and 100 instances of the problem
     1
   ],
   "simplexbudget": [
-    50
+    100
   ],
   "euclsimplex": [
     1

@@ -65,29 +65,22 @@ def dataprofile(df_run, tau=1e-2, euclideansimplex=0, lbdfoeuclideansimplex=1):
                 if euclideansimplex == 1
                 else df_variant["rb_per_iteration_evaluations"]
             )
-            evaluations = np.array(evaluations.tolist())[0]
+            evaluations = np.array(evaluations.tolist()[0])
+
             evaluations = np.cumsum(evaluations)
             vf = df_variant["vf"] if euclideansimplex == 1 else df_variant["rb_vf"]
             vf = np.array(vf.tolist())[0]
 
             f0 = vf[0]
-
-            # print("lbdfo = ", lbdfo)
-            # print("f0 = ", f0)
-            # print("vf = ", vf)
-
             test_value = (vf - lbdfo) / (f0 - lbdfo)
             indices_solving = np.where(test_value <= tau)[0]
             if len(indices_solving) == 0:
                 alpha = N + 2
             else:
-                # print("hey")
                 index_first_solving = np.min(indices_solving)
-                # print(evaluations)
                 alpha = int(
                     evaluations[index_first_solving] / (scalingdim + 1)
                 )  # alpha is the abscissa of the data profile
-                # print("heybis")
 
             # storing for every problem and solver
             vfalpha.append(
@@ -100,8 +93,6 @@ def dataprofile(df_run, tau=1e-2, euclideansimplex=0, lbdfoeuclideansimplex=1):
                 }
             )
     vfalpha = pd.DataFrame(vfalpha)
-    # print("hhhhhh")
-    # return vfalpha
 
     # Creating one common dataprofile for all problems
     dp = []
@@ -113,7 +104,6 @@ def dataprofile(df_run, tau=1e-2, euclideansimplex=0, lbdfoeuclideansimplex=1):
                 & (vfalpha["rotation"] == rotation)
                 & (vfalpha["psstype"] == psstype)
             ]
-            # print(test)
             ratio_solved = (
                 vfalpha[
                     (vfalpha["projection"] == projection)

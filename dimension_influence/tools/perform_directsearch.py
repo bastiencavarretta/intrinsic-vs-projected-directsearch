@@ -8,7 +8,13 @@ import pickle
 import dill
 
 
-from tools.problems.newmanifolds import ProblemLinearSubspace, ProblemEigh
+from problems.ProblemEigh import (
+    ProblemEigh,
+)
+
+from problems.ProblemLinearSubspace import (
+    ProblemLinearSubspace,
+)
 
 
 def directsearch(
