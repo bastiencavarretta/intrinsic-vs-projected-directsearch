@@ -163,6 +163,7 @@ def directsearch(
         "vf": np.array(vf),
         "per_iteration_evaluations": vevperit,
         "valpha": valphas,
+        ""
         "stopcriterion": stopcriterion,
         "last_iterate": x,
     }

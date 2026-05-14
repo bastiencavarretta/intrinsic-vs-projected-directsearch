@@ -9,8 +9,8 @@ from datetime import datetime
 from tracemalloc import start
 import pandas as pd
 
-from ProblemSynchRotations import ProblemSynchRotations
-from directsearch import directsearch
+from code.synchronization_rotations.ProblemSynchRotations import ProblemSynchRotations
+from code.synchronization_rotations.directsearch import directsearch
 
 
 class Tee:

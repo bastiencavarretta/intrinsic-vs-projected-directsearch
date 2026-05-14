@@ -10,11 +10,11 @@ from dataclasses import dataclass
 sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "..")))
 print(sys.path[0])
 # Importing everything
-from problems.newmanifolds import *
-from tools.utils_cm_hypersphere import *
-from tools.perform_directsearch import perform_ds, saveperform_ds, ds_key, directsearch
-from tools.plotandsave_dataprofile import plotting_dp
-from tools.saveprint_tables import performancetable
+from code.dimension_influence.problems.newmanifolds import *
+from code.dimension_influence.tools.utils_cm_hypersphere import *
+from code.dimension_influence.tools.perform_directsearch import perform_ds, saveperform_ds, ds_key, directsearch
+from code.dimension_influence.tools.plotandsave_dataprofile import plotting_dp
+from code.dimension_influence.tools.saveprint_tables import performancetable
 
 # Plotting parameters
 plt.rcParams.update(
