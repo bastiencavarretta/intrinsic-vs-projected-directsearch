@@ -202,8 +202,8 @@ cython_debug/
 .cursorindexingignore
 
 # Claude
-.claude/
-.devcontainer/bash_history
+.claude 
+bash_history
 # Marimo
 marimo/_static/
 marimo/_lsp/
