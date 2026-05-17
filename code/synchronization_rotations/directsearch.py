@@ -1,8 +1,5 @@
 from tracemalloc import stop
-
 import numpy as np
-import numpy.linalg as lg
-
 import time
 from dataclasses import dataclass
 from pymanopt import manifolds as man
@@ -43,7 +40,6 @@ def directsearch(
         budget = (m + 1) * simplexbudget
     else:
         raise ValueError("euclsimplex should be either 0 or 1")
-    # riemannian simplex budget, for extracting the subsresults from an "euclidean simplex
     rb = (m + 1) * simplexbudget
     searchdim = m if projection == 0 else n
     (
@@ -58,7 +54,6 @@ def directsearch(
     vf = [f(x0)]
     vevperit = [1]
     valphas = [alpha]  # the value of alpha at each iteration
-    success_indices, failure_indices = [], []
     k = 1
     evaluation_number = 1
     stopcriterion = None
@@ -107,8 +102,6 @@ def directsearch(
                 f_value = f_poll
                 alpha = min(alpha_max, Gamma * alpha)
                 success = True
-                success_indices.append(k)
-
             if (
                 budget != np.inf
                 and (evaluation_number + 1) % (int(0.1 * budget + 1)) == 1
@@ -123,9 +116,7 @@ def directsearch(
 
         if success == False:
             alpha = min(alpha_max, gamma * alpha)
-            failure_indices.append(k)
         vevperit.append(nevaluation_for_k)
-
         vf.append(f_value)
         valphas.append(alpha)
 
@@ -153,9 +144,9 @@ def directsearch(
         rb_stopcriterion = stopcriterion
     elif stopcriterion == "full budget used":
         rb_stopcriterion = "full budget used"
-
-    print("----direct-search finished----") if printing else None
     vf = np.array(vf)
+    rb_vf = np.array(rb_vf) if rb_vf is not None else None
+    print("----direct-search finished----") if printing else None
 
     #    index of success/failures peut se retrouver grace au tableau des valphas
     result = {
@@ -163,7 +154,6 @@ def directsearch(
         "vf": np.array(vf),
         "per_iteration_evaluations": vevperit,
         "valpha": valphas,
-        ""
         "stopcriterion": stopcriterion,
         "last_iterate": x,
     }
