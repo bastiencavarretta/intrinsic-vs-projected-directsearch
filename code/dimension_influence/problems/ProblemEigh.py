@@ -7,8 +7,8 @@ from pymanopt.manifolds.manifold import Manifold
 import scipy.linalg
 import scipy.stats
 import scipy
-from code.dimension_influence.tools.utils_cm_hypersphere import *
-from code.dimension_influence.problems.newmanifolds import NullManifold
+from utils_cm_hypersphere import *
+from problems.newmanifolds import NullManifold
 
 
 @dataclass
@@ -32,13 +32,13 @@ class ProblemEigh:
                 NullManifold(man.Euclidean(self.codim - 1)),
             ]
         )
-        self.anorm = lambda x: np.sqrt(
-            scipy.linalg.norm(x[0], ord=2) ** 2 + scipy.linalg.norm(x[1], ord=2) ** 2
-        )  # ambient norm = euclidean norm since embedded submanifold
         A = np.random.randn(self.mdim + 1, self.mdim + 1)
         self.A = (A + A.T) / 2
         self.xstart = self.manifold.random_point()
         self.fstart = self.costf(self.xstart)
+
+    def anorm(self, x):
+        return np.sqrt(scipy.linalg.norm(x[0], ord=2) ** 2 + scipy.linalg.norm(x[1], ord=2) ** 2)
 
     def costf(self, x):
         value = np.dot(self.A, x[0]).dot(x[0])

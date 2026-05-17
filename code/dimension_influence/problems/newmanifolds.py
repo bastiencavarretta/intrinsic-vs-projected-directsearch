@@ -7,7 +7,7 @@ from pymanopt.manifolds.manifold import Manifold
 import scipy.linalg
 import scipy.stats
 import scipy
-from code.dimension_influence.tools.utils_cm_hypersphere import *
+from utils_cm_hypersphere import *
 
 
 class NullManifold(Manifold):

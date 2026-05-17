@@ -7,8 +7,8 @@ from pymanopt.manifolds.manifold import Manifold
 import scipy.linalg
 import scipy.stats
 import scipy
-from code.dimension_influence.tools.utils_cm_hypersphere import *
-from code.dimension_influence.problems.newmanifolds import NullManifold, LinearSubspace
+from utils_cm_hypersphere import *
+from problems.newmanifolds import NullManifold, LinearSubspace
 
 
 @dataclass
@@ -34,12 +34,16 @@ class ProblemLinearSubspace:
         self.adim = self.B.shape[0]
         self.mdim = self.manifold.dimension
         self.codim = self.adim - self.mdim
-        self.anorm = lambda x: scipy.linalg.norm(
-            x, ord=2
-        )  # ambient norm = euclidean norm since embedded submanifold
         self.xstart = self.manifold.random_point()
 
-        if self.obj == 1:  # Barycenter problem of points in the linear subspace
+        if self.obj == 1:  # Barycenter problem of points in the ambient subspace R^n
+            self.xref = np.random.randn(self.adim)
+            self.xrefdirections = [np.random.rand(self.adim) for i in range(10)]
+            self.xpoints = [self.xref + v for v in self.xrefdirections]
+            self.xstar = self.manifold.projection(
+                1967, np.mean(np.array(self.xpoints), axis=0)
+            )
+        elif self.obj == 2:  # Barycenter problem of points in the linear subspace
             self.xref = self.manifold.random_point()
             self.xrefdirections = [
                 self.manifold.random_tangent_vector(self.xref) for i in range(10)
@@ -49,14 +53,6 @@ class ProblemLinearSubspace:
             ]
             self.xstar = np.mean(np.array(self.xpoints), axis=0)
 
-        elif self.obj == 2:  # Barycenter problem of points in the ambient subspace R^n
-            self.xref = np.random.randn(self.adim)
-            self.xrefdirections = [np.random.rand(self.adim) for i in range(10)]
-            self.xpoints = [self.xref + v for v in self.xrefdirections]
-            self.xstar = self.manifold.projection(
-                1967, np.mean(np.array(self.xpoints), axis=0)
-            )
-
         elif self.obj == 3:  # Quadratic objective function
             rdmmatrix = np.random.randn(self.adim, self.adim)
             self.A = rdmmatrix.dot(rdmmatrix.T) + 0.1 * np.eye(self.adim, dtype=float)
@@ -65,6 +61,9 @@ class ProblemLinearSubspace:
             raise ValueError("objective not defined")
 
         self.fstart = self.costf(self.xstart)
+
+    def anorm(self, x):
+        return scipy.linalg.norm(x, ord=2)
 
     def costf(self, x):
         if self.obj == 1:

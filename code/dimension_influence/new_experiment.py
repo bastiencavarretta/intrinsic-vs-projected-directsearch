@@ -1,55 +1,84 @@
+import argparse
 import os
 import json
 from datetime import datetime
+from os import path
+import json
+import itertools
+import subprocess
+import numpy as np
 
 # ====== USER INPUT ======
-experiment_name = "dim5_codim4_budg100"
-description = "Benchmark on linear subspace and sphere problems, budget = 100 simplex gradients."
-
-# Each (maniftype, obj) pair is one sub-experiment (one call to saveperform_ds).
-# maniftype: 1 = random linear subspace, 1.5 = horizontal subspace, 2 = sphere
-# obj:       1 = barycenter in subspace, 2 = barycenter in ambient space, 3 = quadratic
-maniftypeobj = [
-    (1,   1),
-    (1,   2),
-    (1.5, 2),
-    (1,   3),
-    (2,   1),
-]
-
+experiment_name = "finalrun_budg100"
+description = "Budget = 100 simplex gradients. All pb types, all algo types. 100 instances per (pbtype, mdim, codim) triplet. codim = 0, 2, 4, 8, 16, 32. mdim = 2, 4, 8, 16, 32. (mdim, codim) pairs are all combinations of these values. Sanity test with only 2 instances and simplex budget of 3."
 pb_parameters = {
-    "mdims": [2, 4, 8, 16, 32],
-    "codims": [0, 2, 4, 8, 16, 32],
-    "nbinstances": 100,
-    "seed": 42,
+    "seed": [42],
+    # "mdimcodim": [
+    #     [4, 0],
+    #     [4, 2],
+    #     [4, 8],
+    #     [4, 16],
+    #     [4, 32],
+    #     [4, 4],
+    #     [2, 4],
+    #     [8, 4],
+    #     [16, 4],
+    #     [32, 4],
+    # ],
+    "mdimcodim": [
+        list(pair)
+        for pair in itertools.product([2, 4, 8, 16, 32], [0, 2, 4, 8, 16, 32])
+    ],
+    # "mdimcodim": [
+    #     list(pair) for pair in itertools.product([1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4])
+    # ],
+    "pbtype": [
+        "linear_extrinsic_barycenter",
+        "linear_intrinsic_barycenter",
+        "linear_extrinsic_quadratic",
+        "eigh",
+    ],
+    "instance": np.arange(0, 10, 1).tolist(),
 }
+
 
 algo_parameters = {
-    "N": 100,
-    "euclsimplex": 1,
-    "gamma": 0.5,
-    "Gamma": 2.0,
-    "alpha_0": 1.0,
-    "alpha_max": 1.0,
-    "c": 1.0,
+    "psstype": [1, 2, 3],
+    "projection": [0, 1],
+    "rotation": [0, 1],
+    "simplexbudget": [100],  # number of simplex gradients
+    "euclsimplex": [1],  # 0 means riemannian simplex, 1 euclidean.
+    "gamma": [0.5],
+    "Gamma": [2.0],
+    "alpha_0": [1.0],
+    "alpha_max": [1.0],
+    "c": [1.0],
 }
+
+
 # =======================
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--sanitytest", action="store_true")
+args = parser.parse_args()
+
+if args.sanitytest:
+    experiment_name = experiment_name + "_sanitytest"
+    pb_parameters["instance"] = np.arange(0, 2).tolist()
+    algo_parameters["simplexbudget"] = [3]
+
+# Auto date
 date_str = datetime.now().strftime("%Y-%m-%d")
 exp_id = f"{date_str}_{experiment_name}_v1"
-base_dir = os.path.join("dimension_influence", "experiments", exp_id)
-os.makedirs(base_dir, exist_ok=True)
 
-# Results will be saved here by saveperform_ds (one .pkl pair per sub-experiment).
-results_dir = os.path.join(base_dir, "results")
-os.makedirs(results_dir, exist_ok=True)
+base_dir = os.path.join("experiments", exp_id)
+os.makedirs(base_dir, exist_ok=True)
 
 # ---- metadata.json ----
 metadata = {
     "experiment_name": experiment_name,
     "date": date_str,
     "description": description,
-    "maniftypeobj": maniftypeobj,
     "pb_parameters": pb_parameters,
     "algo_parameters": algo_parameters,
     "tags": [experiment_name],
@@ -59,23 +88,55 @@ metadata = {
 with open(os.path.join(base_dir, "metadata.json"), "w") as f:
     json.dump(metadata, f, indent=2)
 
-# ---- config.json ----
-# One entry per (maniftype, obj) pair — each maps to one saveperform_ds call.
-sub_experiments = []
-for idx, (maniftype, obj) in enumerate(maniftypeobj):
-    sub_experiments.append({
-        "id": idx,
-        "maniftype": maniftype,
-        "obj": obj,
-        **pb_parameters,
-        **algo_parameters,
-        "results_dir": results_dir,
-    })
-
-config = {"sub_experiments": sub_experiments}
-
+# ---- config.json (empty for now) ----
 with open(os.path.join(base_dir, "config.json"), "w") as f:
+    json.dump({"experiments": []}, f, indent=2)
+
+# ---- generate_config.py ----
+
+pb_keys = pb_parameters.keys()
+pb_values = pb_parameters.values()
+algo_keys = algo_parameters.keys()
+algo_values = algo_parameters.values()
+vpb_parameters = []
+for idx, combo in enumerate(itertools.product(*pb_values)):
+    instance = dict(zip(pb_keys, combo))
+    instance["idpb"] = idx
+    instance["mdim"] = instance["mdimcodim"][0]
+    instance["codim"] = instance["mdimcodim"][1]
+    instance["codim_rendering"] = instance["codim"]
+    instance["mdim_rendering"] = instance["mdim"]
+    instance["mdimcodim_rendering"] = [
+        instance["mdim_rendering"],
+        instance["codim_rendering"],
+    ]
+
+    if (
+        instance["codim"] == 0 and instance["pbtype"] == "eigh"
+    ):  # on fait les vrai calculs; on stocke ce qu'on fait pr de vrai.""
+        instance["codim"] = 1
+        instance["mdimcodim"][1] = 1
+    instance["adim"] = instance["mdim"] + instance["codim"]
+
+    vpb_parameters.append(instance)
+
+valgo_parameters = []
+for idx, combo in enumerate(itertools.product(*algo_values)):
+    instance = dict(zip(algo_keys, combo))
+    instance["idalgo"] = idx
+    valgo_parameters.append(instance)
+
+config = {"pb_parameters": vpb_parameters, "algo_parameters": valgo_parameters}
+
+path_to_dump_json = os.path.join(base_dir, "config.json")
+
+with open(path_to_dump_json, "w") as f:
     json.dump(config, f, indent=2)
+
+print(
+    f"Generated {len(vpb_parameters)} problem and {len(valgo_parameters)} algorithm configurations."
+)
+
 
 # ---- notes.md ----
 notes = f"""# {exp_id}
@@ -83,22 +144,14 @@ notes = f"""# {exp_id}
 ## Description
 {description}
 
-## Problem families
-{chr(10).join(f"  - maniftype={mf}, obj={ob}" for mf, ob in maniftypeobj)}
-
-## Problem parameters
-{json.dumps(pb_parameters, indent=2)}
-
-## Algorithm parameters
-{json.dumps(algo_parameters, indent=2)}
+## Parameters
+{json.dumps(pb_parameters, indent=2)} {json.dumps(algo_parameters, indent=2)}
 
 ## Notes
-- Add observations here.
+- Add observations here
 """
 
 with open(os.path.join(base_dir, "notes.md"), "w") as f:
     f.write(notes)
 
-print(f"Experiment '{exp_id}' created at: {base_dir}")
-print(f"  {len(sub_experiments)} sub-experiments (one per maniftype/obj pair).")
-print(f"  Results will be saved to: {results_dir}")
+print(f"Experiment created at: {base_dir}")
