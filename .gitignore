@@ -203,7 +203,7 @@ cython_debug/
 
 # Claude
 .claude/
-
+.devcontainer/bash_history
 # Marimo
 marimo/_static/
 marimo/_lsp/
