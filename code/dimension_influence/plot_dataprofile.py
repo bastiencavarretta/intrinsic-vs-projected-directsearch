@@ -5,8 +5,19 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from dataprofile import plotting_dp
 
-EXP = "experiments/2026-05-18_finalrun_budg100instance100_v1"
 
+import sys
+import os
+import argparse
+
+sys.path.insert(0, os.path.dirname(__file__))
+from dataprofile import plotting_dp
+
+parser = argparse.ArgumentParser()
+parser.add_argument("exp", type=str, help="Path to experiment directory")
+args = parser.parse_args()
+
+EXP = args.exp
 
 plotting_dp(
     exppath=EXP,
@@ -15,7 +26,6 @@ plotting_dp(
     projections=[0, 1],
     psstypes=[1, 2, 3],
     rotations=[0],
-    euclsimplex=1,
     tau=1e-2,
     saving=True,
 )
@@ -27,7 +37,17 @@ plotting_dp(
     projections=[0, 1],
     psstypes=[1, 2, 3],
     rotations=[0],
-    euclsimplex=1,
+    tau=1e-2,
+    saving=True,
+)
+
+plotting_dp(
+    exppath=EXP,
+    plottingworld="codimev",
+    fixed_dim=4,
+    projections=[0, 1],
+    psstypes=[1, 2, 3],
+    rotations=[1],
     tau=1e-2,
     saving=True,
 )
@@ -39,19 +59,6 @@ plotting_dp(
     projections=[0, 1],
     psstypes=[1, 2, 3],
     rotations=[1],
-    euclsimplex=1,
-    tau=1e-2,
-    saving=True,
-)
-
-plotting_dp(
-    exppath=EXP,
-    plottingworld="mdimev",
-    fixed_dim=4,
-    projections=[0, 1],
-    psstypes=[1, 2, 3],
-    rotations=[1],
-    euclsimplex=1,
     tau=1e-2,
     saving=True,
 )
