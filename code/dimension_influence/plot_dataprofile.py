@@ -3,9 +3,10 @@ import os
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from code.dimension_influence.plottingdataprofile import plotting_dp
+from dataprofile import plotting_dp
 
-EXP = "experiments/2026-05-17_fixedmdim_budg100_v1"
+EXP = "experiments/2026-05-18_finalrun_budg100instance100_v1"
+
 
 plotting_dp(
     exppath=EXP,
