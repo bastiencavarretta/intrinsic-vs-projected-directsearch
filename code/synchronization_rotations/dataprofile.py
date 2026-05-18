@@ -21,7 +21,7 @@ def dataprofile(df_run, tau=1e-2, euclideansimplex=0, lbdfoeuclideansimplex=1):
     df = df_run.copy()
     N = df["simplexbudget"].iloc[0]  # supposed to be constant
 
-    nbinstance = len(df["seed"].unique())
+    nbinstance = len(df["instance"].unique())
 
     if (euclideansimplex == 1 or lbdfoeuclideansimplex == 1) and df[
         "euclideansimplex"
@@ -33,18 +33,18 @@ def dataprofile(df_run, tau=1e-2, euclideansimplex=0, lbdfoeuclideansimplex=1):
     df["lastf"] = df["vf"].transform(lambda x: x[-1] if len(x) > 0 else None)
     df["rb_lastf"] = df["rb_vf"].transform(lambda x: x[-1] if len(x) > 0 else None)
 
-    df["lbdfo"] = df.groupby("seed")["lastf"].transform("min")
-    df["rb_lbdfo"] = df.groupby("seed")["rb_lastf"].transform("min")
+    df["lbdfo"] = df.groupby("instance")["lastf"].transform("min")
+    df["rb_lbdfo"] = df.groupby("instance")["rb_lastf"].transform("min")
     nb_problems = 1
-    nbinstances = len(df["seed"].unique())
+    nbinstances = len(df["instance"].unique())
 
     vfalpha = []
 
     mdim, codim = df.iloc[0]["problem"].mdim, df.iloc[0]["problem"].codim
     scalingdim = mdim + codim if euclideansimplex == 1 else mdim
 
-    for seed in df["seed"].unique():
-        df_seed = df[df["seed"] == seed]
+    for instance in df["instance"].unique():
+        df_seed = df[df["instance"] == instance]
         for projection, rotation, psstype in itertools.product(
             [0, 1], [0, 1], [1, 2, 3]
         ):
@@ -85,7 +85,7 @@ def dataprofile(df_run, tau=1e-2, euclideansimplex=0, lbdfoeuclideansimplex=1):
             # storing for every problem and solver
             vfalpha.append(
                 {
-                    "seed": seed,
+                    "instance": instance,
                     "projection": projection,
                     "rotation": rotation,
                     "psstype": psstype,
@@ -99,11 +99,6 @@ def dataprofile(df_run, tau=1e-2, euclideansimplex=0, lbdfoeuclideansimplex=1):
     for projection, rotation, psstype in itertools.product([0, 1], [0, 1], [1, 2, 3]):
         for alpha in range(N + 1):
 
-            test = vfalpha[
-                (vfalpha["projection"] == projection)
-                & (vfalpha["rotation"] == rotation)
-                & (vfalpha["psstype"] == psstype)
-            ]
             ratio_solved = (
                 vfalpha[
                     (vfalpha["projection"] == projection)

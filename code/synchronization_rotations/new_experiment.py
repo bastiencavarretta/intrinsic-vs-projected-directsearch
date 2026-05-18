@@ -8,14 +8,15 @@ import subprocess
 import numpy as np
 
 # ====== USER INPUT ======
-experiment_name = "k5_n2_budg100_noise1em6_warmstart"  # name of the experiment, used for folder naming and metadata
-description = "Budget = 100 simplex gradients, noise = 1e-6, warmstart = 0.2, n=2, k=5."
+experiment_name = "k5_n2_budg500_noise1em6_nowarmstart"  # name of the experiment, used for folder naming and metadata
+description = "Budget = 500 simplex gradients, noise = 1e-6, warmstart = 0, n=2, k=5."
 pb_parameters = {
-    "seed": np.arange(0, 100, 1).tolist(),
+    "seed": [42],
+    "instance": np.arange(0, 100, 1).tolist(),
     "n": [2],
     "d": [5],  # [3, 5, 10],
     "noise": [1e-6],  # ordre de grandeur de la distorsion : noise * d
-    "warmstart": [0.2],
+    "warmstart": [0.],
 }
 
 
@@ -23,7 +24,7 @@ algo_parameters = {
     "psstype": [1, 2, 3],
     "projection": [0, 1],
     "rotation": [0, 1],
-    "simplexbudget": [100],  # number of simplex gradients
+    "simplexbudget": [500],  # number of simplex gradients
     "euclsimplex": [1],  # 0 means riemannian simplex, 1 euclidean.
     "gamma": [0.5],
     "Gamma": [2.0],
