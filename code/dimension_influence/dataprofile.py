@@ -1,11 +1,23 @@
 import glob
 import os
+import shutil
 import numpy as np
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
 import itertools
 import pickle
 import matplotlib as mpl
+
+if shutil.which("latex"):
+    plt.rcParams.update(
+        {
+            "font.family": "serif",
+            "font.serif": ["cm"],
+            "text.usetex": True,
+            "figure.figsize": (6.4, 4.0),
+        }
+    )
 
 
 def dataprofile(
@@ -36,6 +48,7 @@ def dataprofile(
                                  NaN for groupby="tot"
             curve (np.ndarray) : data profile values for alpha in 0..N
     """
+    # df["codim_rendering"] = df["codim_rendering"].replace(1, 0)
     df = df.copy()
     if df["simplexbudget"].nunique() == 1:
         N = df["simplexbudget"].iloc[0]
@@ -78,7 +91,7 @@ def dataprofile(
             finals = list(grp[lbdfo_vfcol].apply(lambda x: x[-1]))
             return min(finals)
 
-        lbdfo_series = subdf.groupby(["mdim", "codim", "instance"]).apply(
+        lbdfo_series = subdf.groupby(["mdim", "codim", "instance", "rotation"]).apply(
             _lbdfo, include_groups=False
         )
 
@@ -92,12 +105,13 @@ def dataprofile(
 
             imdim_rendering = list(mdims_rendering).index(row["mdim_rendering"])
             icodim_rendering = list(codims_rendering).index(row["codim_rendering"])
+            # print("codim_rendering:", codims_rendering)
             scalingdim = mdim + codim if euclsimplex == 1 else mdim
 
             fvalues = row[vfcol]
             evaluations = np.cumsum(row[evcol])
             f0 = fvalues[0]
-            lbdfo = lbdfo_series[(mdim, codim, k)]
+            lbdfo = lbdfo_series[(mdim, codim, k, rotation)]
 
             if abs(f0 - lbdfo) < tau:
                 alpha = 0
@@ -213,6 +227,8 @@ def plotting_dp(
     if not pkl_files:
         raise FileNotFoundError(f"No .pkl files found in {exppath}/results/")
     df = pd.concat([pd.read_pickle(f) for f in pkl_files], ignore_index=True)
+    df["codim_rendering"] = df["codim_rendering"].replace(1, 0)
+    # print("codim_rendering after replacement:", df["codim_rendering"].unique())
 
     codims_rendering = [int(x) for x in sorted(df["codim_rendering"].unique())]
     mdims_rendering = [int(x) for x in sorted(df["mdim_rendering"].unique())]
@@ -256,7 +272,7 @@ def plotting_dp(
         name = (
             f"{exp_id}_{suffix}"
             f"_proj{projections}_pss{psstypes}_rot{rotations}"
-            f"_es{euclsimplex}_tau{tau}_mdims{mdims_rendering}_codims{codims_rendering}_nbi{nbinstances}.pdf"
+            f"_es{euclsimplex}_tau{tau}_mdims{mdims_rendering}_codims{codims_rendering}_nbi{nbinstances}_rotawareproxy.pdf"
         )
         return name.replace(" ", "").replace("[", "").replace("]", "")
 
@@ -273,6 +289,7 @@ def plotting_dp(
             fig.delaxes(ax[plotnbr + k])
 
         for icodim, codim_r in enumerate(codims_rendering):
+            print(codims_rendering)
             ax[icodim].set_title("n-m = {:}".format(codim_r), fontsize=subtitle_fonts)
             ax[icodim].grid(True)
             ax[icodim].set_xlim(0, N)
@@ -292,7 +309,7 @@ def plotting_dp(
                         label=f"PSS{psstype} ({variant})",
                         **kwargs,
                     )
-                    ax[icodim].legend(fontsize=label_fonts)
+                    # ax[icodim].legend(fontsize=label_fonts)
                 else:
                     ax[icodim].plot(
                         _curve(projection, rotation, psstype, "codimev", codim_r),
@@ -337,7 +354,7 @@ def plotting_dp(
                         label=f"PSS{psstype} ({variant})",
                         **kwargs,
                     )
-                    ax[imdim].legend(fontsize=label_fonts)
+                    # ax[imdim].legend(fontsize=label_fonts)
                 else:
                     ax[imdim].plot(
                         _curve(projection, rotation, psstype, "mdimev", mdim_r),
@@ -349,6 +366,7 @@ def plotting_dp(
         plt.tight_layout()
         if saving:
             path = os.path.join(plots_dir, _figname("mdimsdp"))
+            
             plt.savefig(path, bbox_inches="tight", dpi=300)
             print(f"Saved: {path}")
         # plt.show()
