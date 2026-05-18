@@ -7,10 +7,11 @@ import os
 import sys
 from datetime import datetime
 from tracemalloc import start
+import numpy as np
 import pandas as pd
 
-from code.synchronization_rotations.ProblemSynchRotations import ProblemSynchRotations
-from code.synchronization_rotations.directsearch import directsearch
+from ProblemSynchRotations import ProblemSynchRotations
+from directsearch import directsearch
 
 
 class Tee:
@@ -71,9 +72,11 @@ def main():
         print("=====================================")
         print("Setting problem:", pb_parameter)
         print("=====================================")
+        pb_seed = pb_parameter["seed"] + pb_parameter["idpb"]
         pb_parameter_noid = {
-            k: v for k, v in pb_parameter.items() if k != "idpb"
-        }  # withdraw the identification key of algo_parameter
+            k: v for k, v in pb_parameter.items() if k not in ("idpb", "instance")
+        }
+        pb_parameter_noid["seed"] = pb_seed
         problem = ProblemSynchRotations(**pb_parameter_noid)
 
         for algo_parameter in algo_parameters:
@@ -83,6 +86,12 @@ def main():
             algo_parameter_noid = {
                 k: v for k, v in algo_parameter.items() if k != "idalgo"
             }  # withdraw the identification key of algo_parameter
+            algo_seed = (
+                pb_parameter["seed"]
+                + pb_parameter["idpb"] * 10000
+                + algo_parameter["idalgo"]
+            )
+            np.random.seed(algo_seed)
             result = directsearch(problem, **algo_parameter_noid)
 
             end_time = time.time()
