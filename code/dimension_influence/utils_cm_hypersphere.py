@@ -2,8 +2,6 @@ import numpy as np
 import scipy.linalg as lg
 import itertools
 import pymanopt
-
-# import tqdm
 from tqdm import tqdm
 
 
