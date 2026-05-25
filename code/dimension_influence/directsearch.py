@@ -1,10 +1,5 @@
 import numpy as np
-import time
-import pandas as pd
 from pymanopt import manifolds as man
-import pickle
-import dill
-from problems import ProblemEigh, ProblemLinearSubspace
 
 
 def directsearch(

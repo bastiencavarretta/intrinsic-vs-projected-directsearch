@@ -1,14 +1,7 @@
-import pymanopt as mo
 import numpy as np
-import numpy.linalg as lg
-import pymanopt.manifolds as man
-from dataclasses import dataclass
-from pymanopt.manifolds.manifold import Manifold
-import scipy.linalg
-import scipy.stats
 import scipy
-from utils_cm_hypersphere import *
-from problems.newmanifolds import NullManifold, LinearSubspace
+from dataclasses import dataclass
+from problems.newmanifolds import LinearSubspace
 
 
 @dataclass
@@ -40,9 +33,9 @@ class ProblemLinearSubspace:
             self.xref = np.random.randn(self.adim)
             self.xrefdirections = [np.random.rand(self.adim) for i in range(10)]
             self.xpoints = [self.xref + v for v in self.xrefdirections]
-            self.xstar = self.manifold.projection(
+            self.xstar = self.manifold.projection( 
                 1967, np.mean(np.array(self.xpoints), axis=0)
-            )
+            ) # Linear subspace: the projection formula does not depend on the current point. First argument useless
         elif self.obj == 2:  # Barycenter problem of points in the linear subspace
             self.xref = self.manifold.random_point()
             self.xrefdirections = [

@@ -1,10 +1,5 @@
-from tracemalloc import stop
 import numpy as np
-import time
-from dataclasses import dataclass
 from pymanopt import manifolds as man
-import pickle
-import dill
 
 
 def directsearch(

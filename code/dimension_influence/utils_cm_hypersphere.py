@@ -1,19 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import cm  # colormaps
 import scipy.linalg as lg
-
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-from scipy.special import binom
 import itertools
-import pandas as pd
 import pymanopt
-
-from tqdm.notebook import tqdm
-from matplotlib import colormaps as cmap
-
-plt.ion()
 
 
 def normalize(vectors, tol=10**-15):
@@ -96,33 +84,6 @@ def generate_PSS(n, psstype=1):
     pss, _, _ = normalize(pss)
     return pss
 
-
-# Objective function to solve the cosine measure problem of the projected pss 1 on tangent space of the sphere
-# def w_square(x,psstype = 1, tol_HJB = 1e-14, tol = 1e-15):
-#     n = len(x)
-#     sphere = pymanopt.manifolds.Sphere(n)
-#     pss = generate_PSS(n,psstype = psstype)
-
-#     # construire un BON de T_xM
-#     matrix = np.eye(n)
-#     matrix[:,0] = x
-#     Q,_ = lg.qr(matrix)
-#     base_tangentspace = Q[:,1:]
-
-
-#     # construction et normalisation de pss proj
-#     pss_proj = np.array([sphere.to_tangent_space(x, vec) for vec in pss.T]).T
-#     normalized_vectors,indices_zero, indices_keep = normalize(pss_proj, tol = tol)
-#     pss_proj = normalized_vectors[:,indices_keep]
-
-#     # décomposition des vecteurs de pss_proj dans cette base : matrice à m lignes
-#     pss_proj_base_tangentspace = base_tangentspace.T.dot(pss_proj)
-
-
-#     # Boucle de Hare/Jarry-Bolduc
-#     value = 1/compute_cm_HJB(pss_proj_base_tangentspace, tol = tol_HJB)
-
-#     return value
 
 
 def CM_heatmap_spheredim2(

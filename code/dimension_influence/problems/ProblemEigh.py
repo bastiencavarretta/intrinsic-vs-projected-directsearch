@@ -1,15 +1,8 @@
-import pymanopt as mo
 import numpy as np
-import numpy.linalg as lg
+import scipy
 import pymanopt.manifolds as man
 from dataclasses import dataclass
-from pymanopt.manifolds.manifold import Manifold
-import scipy.linalg
-import scipy.stats
-import scipy
-from utils_cm_hypersphere import *
 from problems.newmanifolds import NullManifold
-
 
 @dataclass
 class ProblemEigh:
@@ -28,7 +21,7 @@ class ProblemEigh:
         self.codim = self.adim - self.mdim
         self.manifold = man.Product(
             [
-                mo.manifolds.Sphere(self.mdim + 1),
+                man.Sphere(self.mdim + 1),
                 NullManifold(man.Euclidean(self.codim - 1)),
             ]
         )
@@ -121,7 +114,7 @@ class ProblemEigh:
             # basis
             base_U = np.random.randn(self.mdim + 1, self.mdim + 1)
             base_U[:, 0] = x[0]
-            base_U, _ = lg.qr(base_U)
+            base_U, _ = np.linalg.qr(base_U)
             base_U = base_U[:, 1:]
             base = np.vstack((base_U, np.zeros((self.codim - 1, self.mdim))))
             # applying rotation to basis

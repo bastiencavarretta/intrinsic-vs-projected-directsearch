@@ -203,6 +203,7 @@ cython_debug/
 
 # Claude
 .claude/
+/code/.claude 
 
 
 # Marimo

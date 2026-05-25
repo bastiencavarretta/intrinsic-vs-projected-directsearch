@@ -1,24 +1,16 @@
-from multiprocessing import Value
-from operator import ne
-
-import pymanopt as mo
 import pymanopt.manifolds as man
-from pymanopt.manifolds.manifold import Manifold
 import numpy as np
-import numpy.linalg as lg
 from dataclasses import dataclass
-import scipy.linalg
-import scipy.stats
 import scipy
-import networkx as nx
+import networkx as nx # needed to define the general loss
 
 
 @dataclass
-class ProblemSynchRotations:
-    """ """
+class ProblemSynchRotations: 
+    """  """
 
-    d: int
-    n: int
+    d: int # matrix size are dxd
+    n: int #number of rotation matrices. Experiments: n = 2
     noise: float
     seed: int = 0
     warmstart: float = 0.0  # role of a step
@@ -30,7 +22,7 @@ class ProblemSynchRotations:
         self.adim = self.n * (self.d**2)
         self.codim = self.adim - self.mdim
         manif = man.Product(
-            [mo.manifolds.SpecialOrthogonalGroup(self.d) for _ in range(self.n)]
+            [man.SpecialOrthogonalGroup(self.d) for _ in range(self.n)]
         )
 
         self.manifold = manif
@@ -99,12 +91,11 @@ class ProblemSynchRotations:
         xs = self.stack(x)
         if projection == 1:
             abase = np.eye(self.adim)
-            # application de la rotation avant de reshaper : vérifier que ça fait du sens !
+            # applying rotation before reshaping
             rotmat = scipy.stats.ortho_group.rvs(self.adim)
             if rotation == 1:
                 abase = rotmat.dot(abase)
             abase = abase.reshape(self.adim, self.n, self.d, self.d)
-            # les vecteurs de taille (self.n,self.d,self.d) sont du type du l'espace ambiant, à unstack près.
 
             # Defining the ambient pss
             if psstype == 1:
@@ -132,7 +123,6 @@ class ProblemSynchRotations:
                 raise ValueError("psstype should be either 1, 2 or 3")
 
             # projecting the pss (see Boumal, p162)
-
             xTu = np.einsum("nik,bnkj->bnij", np.transpose(xs, axes=(0, 2, 1)), apss)
             uTx = np.einsum("bnik,nkj->bnij", np.transpose(apss, axes=(0, 1, 3, 2)), xs)
             antisymetrized = (xTu - uTx) / 2
@@ -147,7 +137,6 @@ class ProblemSynchRotations:
             pss = pss[pssnormskeep]
             pssnorms = pssnorms[pssnormskeep]
             pss = pss / pssnorms[:, np.newaxis, np.newaxis, np.newaxis]
-            # psspymanopt =
 
         elif projection == 0:
             # build base of tangent space
@@ -171,7 +160,7 @@ class ProblemSynchRotations:
 
             base = product_antisymmetric_basis(self.d, self.n)
 
-            # application de la rotation (comb lin de la base)
+            # applying rotation
             rotmat = scipy.stats.ortho_group.rvs(self.mdim)
             if rotation == 1:
                 base = np.einsum("kabc,kd->dabc", base, rotmat)

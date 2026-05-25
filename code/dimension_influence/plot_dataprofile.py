@@ -4,8 +4,6 @@ import os
 sys.path.insert(0, os.path.dirname(__file__))
 
 from dataprofile import plotting_dp
-
-
 import sys
 import os
 import argparse

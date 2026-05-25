@@ -1,12 +1,8 @@
 import argparse
 import json
-from os import path
-import pickle
 import time
 import os
 import sys
-from datetime import datetime
-from tracemalloc import start
 import numpy as np
 import pymanopt.manifolds as man
 import pandas as pd

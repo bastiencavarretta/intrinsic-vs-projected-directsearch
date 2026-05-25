@@ -1,12 +1,6 @@
 import pymanopt as mo
 import numpy as np
-import numpy.linalg as lg
-import pymanopt.manifolds as man
-from dataclasses import dataclass
 from pymanopt.manifolds.manifold import Manifold
-import scipy.linalg
-import scipy.stats
-import scipy
 from utils_cm_hypersphere import *
 
 
