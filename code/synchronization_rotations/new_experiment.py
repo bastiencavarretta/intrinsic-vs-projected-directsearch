@@ -1,10 +1,9 @@
 import os
 import json
 from datetime import datetime
-from os import path
 import json
 import itertools
-import subprocess
+import argparse
 import numpy as np
 
 # ====== USER INPUT ======
@@ -16,7 +15,7 @@ pb_parameters = {
     "n": [2],
     "d": [5],  # [3, 5, 10],
     "noise": [1e-6],  # ordre de grandeur de la distorsion : noise * d
-    "warmstart": [0.],
+    "warmstart": [0.0],
 }
 
 
@@ -35,6 +34,15 @@ algo_parameters = {
 
 
 # =======================
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--sanitytest", action="store_true")
+args = parser.parse_args()
+
+if args.sanitytest:
+    experiment_name = experiment_name + "_sanitytest"
+    pb_parameters["instance"] = np.arange(0, 2).tolist()
+    algo_parameters["simplexbudget"] = [3]
 
 # Auto date
 date_str = datetime.now().strftime("%Y-%m-%d")
