@@ -1,7 +1,6 @@
 #Plotting parameters
 import numpy as np
 import itertools
-import itertools
 import pandas as pd
 
 

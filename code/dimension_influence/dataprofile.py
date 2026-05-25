@@ -3,10 +3,8 @@ import os
 import shutil
 import numpy as np
 import pandas as pd
-import matplotlib
 import matplotlib.pyplot as plt
 import itertools
-import pickle
 import matplotlib as mpl
 
 if shutil.which("latex"):

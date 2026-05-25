@@ -141,7 +141,6 @@ def directsearch(
     rb_vf = np.array(rb_vf) if rb_vf is not None else None
     print("----direct-search finished----") if printing else None
 
-    #    index of success/failures peut se retrouver grace au tableau des valphas
     result = {
         "euclideansimplex": euclsimplex,
         "vf": np.array(vf),
