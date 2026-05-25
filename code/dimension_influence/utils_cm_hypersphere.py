@@ -3,6 +3,9 @@ import scipy.linalg as lg
 import itertools
 import pymanopt
 
+# import tqdm
+from tqdm import tqdm
+
 
 def normalize(vectors, tol=10**-15):
     """
@@ -83,7 +86,6 @@ def generate_PSS(n, psstype=1):
         raise ValueError("wrong 'ambiant_pss_type' specified")
     pss, _, _ = normalize(pss)
     return pss
-
 
 
 def CM_heatmap_spheredim2(
