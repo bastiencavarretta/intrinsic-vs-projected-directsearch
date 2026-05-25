@@ -2,10 +2,8 @@ import argparse
 import os
 import json
 from datetime import datetime
-from os import path
 import json
 import itertools
-import subprocess
 import numpy as np
 
 # ====== USER INPUT ======
