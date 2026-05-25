@@ -1,31 +1,27 @@
 import sys
 import os
-
-sys.path.insert(0, os.path.dirname(__file__))
-
-from dataprofile import plotting_dp
-import sys
-import os
 import argparse
 
 sys.path.insert(0, os.path.dirname(__file__))
 from dataprofile import plotting_dp
 
 parser = argparse.ArgumentParser()
-parser.add_argument("exp", type=str, help="Path to experiment directory")
+parser.add_argument("--exppath", type=str, required=True, help="Path to experiment directory")
+parser.add_argument("--dryrun", action="store_true", help="Load dryrun results and suffix output with _dryrun")
 args = parser.parse_args()
 
-EXP = args.exp
+EXP = args.exppath
 
 plotting_dp(
     exppath=EXP,
     plottingworld="codimev",
-    fixed_dim=4,  # mdim held fixed at 4
+    fixed_dim=4,
     projections=[0, 1],
     psstypes=[1, 2, 3],
     rotations=[0],
     tau=1e-2,
     saving=True,
+    dryrun=args.dryrun,
 )
 
 plotting_dp(
@@ -37,6 +33,7 @@ plotting_dp(
     rotations=[0],
     tau=1e-2,
     saving=True,
+    dryrun=args.dryrun,
 )
 
 plotting_dp(
@@ -48,6 +45,7 @@ plotting_dp(
     rotations=[1],
     tau=1e-2,
     saving=True,
+    dryrun=args.dryrun,
 )
 
 plotting_dp(
@@ -59,4 +57,5 @@ plotting_dp(
     rotations=[1],
     tau=1e-2,
     saving=True,
+    dryrun=args.dryrun,
 )

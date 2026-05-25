@@ -1,4 +1,4 @@
-# # Plooting parameters
+#Plotting parameters
 import numpy as np
 import itertools
 import itertools

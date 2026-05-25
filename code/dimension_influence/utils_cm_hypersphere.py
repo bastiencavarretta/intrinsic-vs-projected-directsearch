@@ -342,7 +342,6 @@ def compute_cm_with_dims(adims, psstype=1, n_samples=100, with_part_points=True)
                 part_point_bis = part_point_bis / np.linalg.norm(part_point_bis, ord=2)
                 part_points = [part_point, part_point_bis]
                 part_points_labels = ["x=mean_(e1,e2)", "x=mean (e1, ..,e_{n-1})"]
-                print(part_points)
                 part_points_colors = ["orange", "red"]
             elif psstype == 3:
                 pss = generate_PSS(n, 3)

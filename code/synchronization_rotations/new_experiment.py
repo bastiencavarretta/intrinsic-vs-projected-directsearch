@@ -1,7 +1,6 @@
 import os
 import json
 from datetime import datetime
-import json
 import itertools
 import argparse
 import numpy as np
@@ -36,17 +35,11 @@ algo_parameters = {
 # =======================
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--sanitytest", action="store_true")
+parser.add_argument("--nodate", action="store_true", help="Omit date prefix from experiment folder name (use for final experiments)")
 args = parser.parse_args()
 
-if args.sanitytest:
-    experiment_name = experiment_name + "_sanitytest"
-    pb_parameters["instance"] = np.arange(0, 2).tolist()
-    algo_parameters["simplexbudget"] = [3]
-
-# Auto date
 date_str = datetime.now().strftime("%Y-%m-%d")
-exp_id = f"{date_str}_{experiment_name}_v1"
+exp_id = f"{experiment_name}_v1" if args.nodate else f"{date_str}_{experiment_name}_v1"
 
 base_dir = os.path.join("experiments", exp_id)
 os.makedirs(base_dir, exist_ok=True)
@@ -65,11 +58,9 @@ metadata = {
 with open(os.path.join(base_dir, "metadata.json"), "w") as f:
     json.dump(metadata, f, indent=2)
 
-# ---- config.json (empty for now) ----
+# ---- config.json  ----
 with open(os.path.join(base_dir, "config.json"), "w") as f:
     json.dump({"experiments": []}, f, indent=2)
-
-# ---- generate_config.py ----
 
 pb_keys = pb_parameters.keys()
 pb_values = pb_parameters.values()
@@ -96,7 +87,7 @@ with open(path_to_dump_json, "w") as f:
     json.dump(config, f, indent=2)
 
 print(
-    f"Generated {{len(vpb_parameters)}} problem and {{len(valgo_parameters)}} algorithm configurations."
+    f"Generated {len(vpb_parameters)} problem and {len(valgo_parameters)} algorithm configurations."
 )
 
 

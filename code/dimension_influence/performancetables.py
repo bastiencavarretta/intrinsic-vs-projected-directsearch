@@ -182,7 +182,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--label", type=str, default="", help="Filename prefix for saved tables."
     )
+    parser.add_argument("--dryrun", action="store_true", help="Suffix output filenames with _dryrun.")
     args = parser.parse_args()
+
+    label = args.label + ("_dryrun_" if args.dryrun else "")
 
     performancetable(
         df=args.pkl,
@@ -192,5 +195,5 @@ if __name__ == "__main__":
         printing=not args.no_print,
         saving=args.save,
         savedir=args.savedir,
-        exp_label=args.label,
+        exp_label=label,
     )

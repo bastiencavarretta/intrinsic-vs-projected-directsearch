@@ -1,9 +1,10 @@
+import argparse
 import shutil
 import sys
 import os
 import pickle
 import itertools
-
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
@@ -13,11 +14,18 @@ sys.path.insert(0, os.path.abspath(".."))
 
 plt.rcParams["text.usetex"] = shutil.which("latex") is not None
 
-# Load latest experiment automatically
-exp_dir = "experiments"
-latest_exp = sorted(os.listdir(exp_dir))[-1]
-results_dir = os.path.join(exp_dir, latest_exp, "results")
-latest_pkl = sorted(f for f in os.listdir(results_dir) if f.endswith(".pkl"))[-1]
+parser = argparse.ArgumentParser()
+parser.add_argument("--exppath", type=str, required=True, help="Path to experiment directory")
+parser.add_argument("--dryrun", action="store_true", help="Load dryrun results and suffix output with _dryrun")
+args = parser.parse_args()
+
+results_dir = os.path.join(args.exppath, "results")
+all_pkls = sorted(f for f in os.listdir(results_dir) if f.endswith(".pkl"))
+if args.dryrun:
+    all_pkls = [f for f in all_pkls if "_dryrun" in f]
+else:
+    all_pkls = [f for f in all_pkls if "_dryrun" not in f]
+latest_pkl = all_pkls[-1]
 path_frame = os.path.join(results_dir, latest_pkl)
 
 with open(path_frame, "rb") as f:
@@ -68,9 +76,9 @@ fig.supxlabel("Number of simplex gradient evaluations", fontsize=titlefonts)
 fig.supylabel("Ratio of problems solved", fontsize=titlefonts)
 plt.tight_layout()
 
-pkl_prefix = os.path.splitext(latest_pkl)[0]
-dataprofiles_dir = os.path.join(results_dir, "dataprofiles")
+dataprofiles_dir = os.path.join(args.exppath, "plots")
 os.makedirs(dataprofiles_dir, exist_ok=True)
-out_path = os.path.join(dataprofiles_dir, f"dataprofile-{pkl_prefix}.pdf")
+dr_suffix = "_dryrun" if args.dryrun else ""
+out_path = os.path.join(dataprofiles_dir, f"dataprofile{dr_suffix}.pdf")
 fig.savefig(out_path, bbox_inches="tight")
 print(f"Saved: {out_path}")

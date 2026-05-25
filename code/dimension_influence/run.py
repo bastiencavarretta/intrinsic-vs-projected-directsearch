@@ -27,11 +27,11 @@ class Tee:
         self.file.flush()
 
 
-def setup_auto_log(axpdir, logsubdir="results"):
+def setup_auto_log(axpdir, logsubdir="results", suffix=""):
     logdir = os.path.join(axpdir, logsubdir)
     os.makedirs(logdir, exist_ok=True)
     starttime = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
-    filename = f"run{starttime}.log"
+    filename = f"run{starttime}{suffix}.log"
     logpath = os.path.join(logdir, filename)
 
     sys.stdout = Tee(logpath)
@@ -45,15 +45,20 @@ def main():
     parser.add_argument(
         "--exppath", type=str, required=True, help="Path to experience directory"
     )
+    parser.add_argument(
+        "--dryrun", action="store_true",
+        help="Run with 2 instances and budget 2; results saved with _dryrun suffix"
+    )
 
     args = parser.parse_args()
+    suffix = "_dryrun" if args.dryrun else ""
     with open(os.path.join(args.exppath, "config.json"), "r") as f:
         config = json.load(f)
-    logdir, logpath, starttime = setup_auto_log(args.exppath)
+    logdir, logpath, starttime = setup_auto_log(args.exppath, suffix=suffix)
 
     config["logpath"] = logpath
     config["starttime"] = starttime
-    configcopyname = f"run{starttime}.json"
+    configcopyname = f"run{starttime}{suffix}.json"
 
     configcopypath = os.path.join(logdir, configcopyname)
     with open(configcopypath, "w") as f:
@@ -61,8 +66,13 @@ def main():
 
     pb_parameters = config["pb_parameters"]
     algo_parameters = config["algo_parameters"]
-    # device = config["device"]
-    # sanitytest = config["sanitytest"]
+
+    if args.dryrun:
+        kept_instances = sorted({p["instance"] for p in pb_parameters})[:2]
+        pb_parameters = [p for p in pb_parameters if p["instance"] in kept_instances]
+        for ap in algo_parameters:
+            ap["simplexbudget"] = 2
+
     results = []
 
     for pb_parameter in pb_parameters:
@@ -94,7 +104,6 @@ def main():
         for algo_parameter in algo_parameters:
             parameter = {**pb_parameter, **algo_parameter}
             start_time = time.time()
-            # print("Running algo with parameters:", parameter)
             algo_parameter_noid = {
                 k: v for k, v in algo_parameter.items() if k != "idalgo"
             }  # withdraw the identification key of algo_parameter
@@ -115,7 +124,8 @@ def main():
             results.append(result)
 
     df = pd.DataFrame(results)
-    results_path = os.path.join(logdir, f"results_{starttime}.pkl")
+    suffix = "_dryrun" if args.dryrun else ""
+    results_path = os.path.join(logdir, f"results_{starttime}{suffix}.pkl")
     df.to_pickle(results_path)
     print("Results saved to:", results_path)
 
@@ -127,7 +137,6 @@ def main():
         "End:",
         time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()),
         "\n",
-        # "Result below: \n ",
     )
 
 
